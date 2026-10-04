@@ -1,0 +1,1658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HAA Studio - Creative Community for Artists</title>
+  <style>
+    /* ==========================================================================
+       1. UNIFIED DESIGN SYSTEM & CSS VARIABLES
+       ========================================================================== */
+    :root {
+      --bg-dark: #0a0a0c;
+      --bg-card: #14141a;
+      --bg-card-hover: #1c1c24;
+      --glass-bg: rgba(20, 20, 26, 0.75);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --accent: #ff3b5c;
+      --accent-hover: #ff5270;
+      --text-main: #ffffff;
+      --text-sub: #8a8a9e;
+      --text-muted: #5e5e70;
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-full: 9999px;
+      --shadow-lg: 0 16px 32px rgba(0, 0, 0, 0.5);
+      --transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-family);
+      line-height: 1.5;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button, input, select, textarea {
+      font-family: inherit;
+      color: inherit;
+      border: none;
+      outline: none;
+      background: none;
+    }
+
+    /* ==========================================================================
+       2. INTERACTIVE LAMP INTRO
+       ========================================================================== */
+    #lamp-intro-container {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background-color: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 0.8s ease;
+      touch-action: none;
+    }
+
+    .lamp-wrapper {
+      position: absolute;
+      top: 0;
+      left: 15%;
+      width: 120px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 10001;
+      transition: opacity 0.6s ease;
+    }
+
+    .lamp-cord-svg {
+      width: 120px;
+      height: 280px;
+      overflow: visible;
+    }
+
+    .lamp-glow-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(circle at 18% 280px, rgba(255, 220, 150, 0.3) 0%, rgba(255, 180, 80, 0.08) 35%, transparent 70%);
+      opacity: 0;
+      transition: opacity 1s ease;
+      z-index: 10000;
+    }
+
+    .lamp-glow-overlay.on {
+      opacity: 1;
+    }
+
+    .lamp-hint {
+      position: absolute;
+      top: 320px;
+      left: 15%;
+      transform: translateX(-50%);
+      color: var(--text-sub);
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      opacity: 0.7;
+      animation: pulseText 2s infinite ease-in-out;
+      pointer-events: none;
+    }
+
+    @keyframes pulseText {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 0.9; }
+    }
+
+    /* ==========================================================================
+       3. NAVIGATION & HEADER
+       ========================================================================== */
+    .app-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 72px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--glass-border);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: #fff;
+    }
+
+    .brand-logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--accent), #ff8c3b);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 0.9rem;
+    }
+
+    .nav-menu {
+      display: flex;
+      align-items: center;
+      gap: 1.75rem;
+      list-style: none;
+    }
+
+    .nav-link {
+      color: var(--text-sub);
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: var(--transition);
+      cursor: pointer;
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+    }
+
+    .nav-link:hover, .nav-link.active {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .btn {
+      padding: 8px 18px;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: var(--transition);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border: 1px solid var(--glass-border);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.14);
+    }
+
+    .btn-outline {
+      border: 1px solid var(--glass-border);
+      color: var(--text-sub);
+    }
+
+    .btn-outline:hover {
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .mobile-toggle {
+      display: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--text-main);
+    }
+
+    /* Notification Bell & Dropdown System */
+    .notif-bell-wrapper {
+      position: relative;
+    }
+
+    .notif-bell-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-full);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-sub);
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .notif-bell-btn:hover, .notif-bell-btn.active {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .notif-badge {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      height: 18px;
+      min-width: 18px;
+      padding: 0 5px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--bg-dark);
+    }
+
+    .notif-badge.hidden {
+      display: none;
+    }
+
+    .notif-panel {
+      position: absolute;
+      top: calc(100% + 12px);
+      right: 0;
+      width: 380px;
+      max-height: 480px;
+      background: var(--bg-card);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      backdrop-filter: blur(20px);
+      display: flex;
+      flex-direction: column;
+      z-index: 1001;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: var(--transition);
+    }
+
+    .notif-panel.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .notif-header {
+      padding: 16px;
+      border-bottom: 1px solid var(--glass-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .notif-title {
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .notif-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .notif-action-btn {
+      font-size: 0.8rem;
+      color: var(--text-sub);
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .notif-action-btn:hover {
+      color: var(--accent);
+    }
+
+    .notif-list {
+      overflow-y: auto;
+      max-height: 380px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .notif-item {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      position: relative;
+    }
+
+    .notif-item:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .notif-item.unread {
+      background: rgba(255, 59, 92, 0.06);
+    }
+
+    .notif-item.unread::before {
+      content: '';
+      position: absolute;
+      left: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+    }
+
+    .notif-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-full);
+      object-fit: cover;
+      flex-shrink: 0;
+      background: var(--glass-border);
+    }
+
+    .notif-content {
+      flex: 1;
+      font-size: 0.85rem;
+    }
+
+    .notif-text {
+      color: var(--text-sub);
+      line-height: 1.4;
+      margin-bottom: 4px;
+    }
+
+    .notif-text strong {
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    .notif-time {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .notif-empty {
+      padding: 40px 20px;
+      text-align: center;
+      color: var(--text-sub);
+    }
+
+    .notif-empty-icon {
+      font-size: 2rem;
+      margin-bottom: 8px;
+      opacity: 0.4;
+    }
+
+    /* ==========================================================================
+       4. PAGE LAYOUTS & VIEWS
+       ========================================================================== */
+    .main-container {
+      margin-top: 72px;
+      min-height: calc(100vh - 72px - 200px);
+      padding: 2rem;
+      max-width: 1280px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .page-view {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .page-view.active {
+      display: block;
+      opacity: 1;
+    }
+
+    /* Hero Section */
+    .hero-section {
+      text-align: center;
+      padding: 5rem 1rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .hero-title {
+      font-size: 3.5rem;
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      margin-bottom: 1.25rem;
+      background: linear-gradient(180deg, #ffffff 0%, #a0a0b0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-subtitle {
+      font-size: 1.2rem;
+      color: var(--text-sub);
+      margin-bottom: 2.5rem;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    /* Grids & Cards */
+    .section-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .artworks-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .art-card {
+      background: var(--bg-card);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: var(--transition);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .art-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255, 255, 255, 0.15);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .art-img-wrapper {
+      position: relative;
+      width: 100%;
+      padding-top: 100%; /* 1:1 Aspect Ratio */
+      overflow: hidden;
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .art-img-wrapper img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+
+    .art-card:hover .art-img-wrapper img {
+      transform: scale(1.04);
+    }
+
+    .art-info {
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      flex: 1;
+    }
+
+    .art-title {
+      font-weight: 700;
+      font-size: 1.05rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .art-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      color: var(--text-sub);
+    }
+
+    .art-artist {
+      color: var(--text-sub);
+      transition: color 0.2s;
+    }
+
+    .art-artist:hover {
+      color: var(--accent);
+    }
+
+    .art-card-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.5rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .category-badge {
+      font-size: 0.75rem;
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-sub);
+    }
+
+    .like-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      color: var(--text-sub);
+      cursor: pointer;
+      transition: var(--transition);
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+    }
+
+    .like-btn.liked {
+      color: var(--accent);
+    }
+
+    .like-btn:hover {
+      background: rgba(255, 59, 92, 0.1);
+    }
+
+    /* Artist Cards */
+    .artists-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .artist-card {
+      background: var(--bg-card);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      transition: var(--transition);
+    }
+
+    .artist-card:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .artist-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: var(--radius-full);
+      object-fit: cover;
+      border: 2px solid var(--glass-border);
+    }
+
+    .artist-name {
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .artist-bio {
+      font-size: 0.85rem;
+      color: var(--text-sub);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .artist-stats {
+      display: flex;
+      gap: 1.5rem;
+      font-size: 0.85rem;
+      color: var(--text-sub);
+    }
+
+    /* Forms */
+    .form-container {
+      max-width: 540px;
+      margin: 2rem auto;
+      background: var(--bg-card);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .form-label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-sub);
+    }
+
+    .input-field {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      font-size: 0.95rem;
+      color: #fff;
+      transition: var(--transition);
+    }
+
+    .input-field:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(255, 59, 92, 0.2);
+    }
+
+    /* ==========================================================================
+       5. MODAL SYSTEM
+       ========================================================================== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(12px);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-content {
+      background: var(--bg-card);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 900px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-full);
+      background: rgba(0, 0, 0, 0.5);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    .modal-media {
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .modal-media img, .modal-media video {
+      width: 100%;
+      height: 100%;
+      max-height: 80vh;
+      object-fit: contain;
+    }
+
+    .modal-details {
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .comments-section {
+      border-top: 1px solid var(--glass-border);
+      padding-top: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      flex: 1;
+    }
+
+    .comments-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+
+    .comment-item {
+      display: flex;
+      gap: 10px;
+      font-size: 0.85rem;
+    }
+
+    .comment-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      object-fit: cover;
+    }
+
+    .comment-body {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 8px 12px;
+      border-radius: var(--radius-md);
+      flex: 1;
+    }
+
+    /* Toast Container */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 3000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .toast {
+      background: var(--bg-card);
+      border: 1px solid var(--glass-border);
+      padding: 12px 20px;
+      border-radius: var(--radius-md);
+      color: #fff;
+      font-size: 0.9rem;
+      box-shadow: var(--shadow-lg);
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* Footer */
+    .app-footer {
+      border-top: 1px solid var(--glass-border);
+      padding: 3rem 2rem;
+      text-align: center;
+      color: var(--text-sub);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      .nav-menu { display: none; }
+      .mobile-toggle { display: block; }
+      .modal-content { grid-template-columns: 1fr; }
+      .notif-panel { width: calc(100vw - 32px); right: -10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. INTERACTIVE LAMP INTRO -->
+  <div id="lamp-intro-container">
+    <div class="lamp-glow-overlay" id="lamp-glow"></div>
+    <div class="lamp-wrapper" id="lamp-wrapper">
+      <svg class="lamp-cord-svg" viewBox="0 0 120 280">
+        <!-- Lamp Head -->
+        <path d="M 35 40 L 85 40 L 95 80 L 25 80 Z" fill="#1e1e24" stroke="#ff3b5c" stroke-width="1.5" />
+        <path d="M 45 80 L 75 80 L 70 95 L 50 95 Z" fill="#ffcc66" opacity="0.8" />
+        <!-- Pull Cord -->
+        <path id="cord-path" d="M 60 95 Q 60 180 60 220" fill="none" stroke="#aaaaaa" stroke-width="2" stroke-dasharray="4,4" />
+        <!-- Pull Handle -->
+        <circle id="cord-handle" cx="60" cy="220" r="8" fill="#ff3b5c" cursor="pointer" />
+      </svg>
+    </div>
+    <div class="lamp-hint" id="lamp-hint">Pull cord to illuminate</div>
+  </div>
+
+  <!-- 2. GLOBAL HEADER -->
+  <header class="app-header">
+    <a href="#home" class="brand-logo">
+      <div class="brand-logo-icon">H</div>
+      <span>HAA Studio</span>
+    </a>
+
+    <ul class="nav-menu">
+      <li><a href="#home" class="nav-link active">Home</a></li>
+      <li><a href="#explore" class="nav-link">Explore</a></li>
+      <li><a href="#artists" class="nav-link">Artists</a></li>
+      <li><a href="#upload" class="nav-link">Upload Artwork</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      <!-- NOTIFICATION BELL -->
+      <div class="notif-bell-wrapper">
+        <button class="notif-bell-btn" id="notif-bell-btn" title="Notifications">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          <span class="notif-badge hidden" id="notif-badge">0</span>
+        </button>
+
+        <div class="notif-panel" id="notif-panel">
+          <div class="notif-header">
+            <span class="notif-title">Notifications</span>
+            <div class="notif-actions">
+              <span class="notif-action-btn" id="notif-read-all">Read All</span>
+              <span class="notif-action-btn" id="notif-clear-all">Clear</span>
+            </div>
+          </div>
+          <div class="notif-list" id="notif-list">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <!-- AUTH BUTTON / PROFILE BADGE -->
+      <div id="auth-nav-slot">
+        <a href="#login" class="btn btn-secondary">Login</a>
+      </div>
+      <div class="mobile-toggle" id="mobile-toggle">☰</div>
+    </div>
+  </header>
+
+  <!-- 3. MAIN CONTENT VIEWS -->
+  <main class="main-container">
+
+    <!-- HOME VIEW -->
+    <section id="view-home" class="page-view active">
+      <div class="hero-section">
+        <h1 class="hero-title">Welcome to HAA Studio</h1>
+        <p class="hero-subtitle">A creative community for artists to share, discover, and inspire.</p>
+        <div class="hero-buttons">
+          <a href="#explore" class="btn btn-primary">Explore Artworks</a>
+          <a href="#upload" class="btn btn-secondary">Upload Artwork</a>
+        </div>
+      </div>
+
+      <div class="section-title">
+        <span>Featured Artworks</span>
+      </div>
+      <div class="artworks-grid" id="home-featured-grid"></div>
+    </section>
+
+    <!-- EXPLORE VIEW -->
+    <section id="view-explore" class="page-view">
+      <div class="section-title">Explore Artworks</div>
+      <div style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
+        <input type="text" id="explore-search" class="input-field" placeholder="Search artworks or artists..." style="flex: 1; min-width: 240px;">
+        <select id="explore-category" class="input-field" style="width: 180px;">
+          <option value="All">All Categories</option>
+          <option value="Anime">Anime</option>
+          <option value="Digital Art">Digital Art</option>
+          <option value="Pixel Art">Pixel Art</option>
+          <option value="Character Design">Character Design</option>
+          <option value="Illustrations">Illustrations</option>
+        </select>
+      </div>
+      <div class="artworks-grid" id="explore-grid"></div>
+    </section>
+
+    <!-- ARTISTS VIEW -->
+    <section id="view-artists" class="page-view">
+      <div class="section-title">Community Artists</div>
+      <div class="artists-grid" id="artists-grid"></div>
+    </section>
+
+    <!-- UPLOAD VIEW -->
+    <section id="view-upload" class="page-view">
+      <div class="form-container">
+        <h2 style="margin-bottom: 1.5rem;">Publish Artwork</h2>
+        <form id="upload-form">
+          <div class="form-group">
+            <label class="form-label">Artwork Image</label>
+            <input type="file" id="upload-file" class="input-field" accept="image/*" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Artwork Title</label>
+            <input type="text" id="upload-title" class="input-field" placeholder="Enter title..." required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <select id="upload-category" class="input-field" required>
+              <option value="Anime">Anime</option>
+              <option value="Digital Art">Digital Art</option>
+              <option value="Pixel Art">Pixel Art</option>
+              <option value="Character Design">Character Design</option>
+              <option value="Illustrations">Illustrations</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Publish</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- AUTH VIEWS -->
+    <section id="view-login" class="page-view">
+      <div class="form-container">
+        <h2 style="margin-bottom: 1.5rem;">Welcome Back</h2>
+        <form id="login-form">
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" id="login-email" class="input-field" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" id="login-pass" class="input-field" required>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Login</button>
+          <p style="text-align: center; margin-top: 1rem; font-size: 0.85rem; color: var(--text-sub);">
+            Don't have an account? <a href="#register" style="color: var(--accent);">Create Account</a>
+          </p>
+        </form>
+      </div>
+    </section>
+
+    <section id="view-register" class="page-view">
+      <div class="form-container">
+        <h2 style="margin-bottom: 1.5rem;">Create Account</h2>
+        <form id="register-form">
+          <div class="form-group">
+            <label class="form-label">Username</label>
+            <input type="text" id="reg-username" class="input-field" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" id="reg-email" class="input-field" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" id="reg-pass" class="input-field" required>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Register</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- USER PROFILE VIEW -->
+    <section id="view-profile" class="page-view">
+      <div id="profile-header-slot" style="text-align: center; padding: 2rem 0; border-bottom: 1px solid var(--glass-border); margin-bottom: 2rem;"></div>
+      <div class="section-title">Uploaded Artworks</div>
+      <div class="artworks-grid" id="profile-artworks-grid"></div>
+    </section>
+
+  </main>
+
+  <!-- 4. ARTWORK DETAILS MODAL -->
+  <div class="modal-overlay" id="artwork-modal">
+    <div class="modal-content">
+      <div class="modal-close" id="modal-close">✕</div>
+      <div class="modal-media">
+        <img id="modal-img" src="" alt="Artwork View">
+      </div>
+      <div class="modal-details">
+        <div>
+          <h2 id="modal-title" style="font-size: 1.5rem; margin-bottom: 4px;"></h2>
+          <div id="modal-artist" style="color: var(--text-sub); font-size: 0.9rem;"></div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <button id="modal-like-btn" class="like-btn">♥ Like (<span id="modal-like-count">0</span>)</button>
+          <span id="modal-category" class="category-badge"></span>
+        </div>
+        <div class="comments-section">
+          <h3>Comments</h3>
+          <div class="comments-list" id="modal-comments-list"></div>
+          <form id="modal-comment-form" style="display: flex; gap: 8px; margin-top: auto;">
+            <input type="text" id="modal-comment-input" class="input-field" placeholder="Add a comment..." style="flex: 1;" required>
+            <button type="submit" class="btn btn-primary">Post</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- FOOTER -->
+  <footer class="app-footer">
+    <p>&copy; 2026 HAA Studio. All rights reserved. A unified creative ecosystem.</p>
+  </footer>
+
+  <!-- ==========================================================================
+     5. APPLICATION LOGIC & JAVASCRIPT
+     ========================================================================== -->
+  <script>
+    /* Security HTML Sanitizer */
+    function escapeHTML(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>"']/g, function(m) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
+      });
+    }
+
+    /* Local Storage State Hydration */
+    const STORAGE_KEYS = {
+      ARTWORKS: 'haa_artworks',
+      USERS: 'haa_users',
+      CURRENT_USER: 'haa_current_user',
+      LIKES: 'haa_likes',
+      COMMENTS: 'haa_comments',
+      FOLLOWS: 'haa_follows',
+      NOTIFICATIONS: 'haa_notifications'
+    };
+
+    const initialArtworks = [
+      { id: '1', title: 'Cyber Neon Genesis', artistId: 'u1', artistName: 'Aura', category: 'Digital Art', img: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80' },
+      { id: '2', title: 'Celestial Traveler', artistId: 'u2', artistName: 'Kaito', category: 'Anime', img: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=600&q=80' }
+    ];
+
+    const initialUsers = [
+      { id: 'u1', username: 'Aura', email: 'aura@haa.studio', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80' },
+      { id: 'u2', username: 'Kaito', email: 'kaito@haa.studio', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80' }
+    ];
+
+    let appState = {
+      artworks: JSON.parse(localStorage.getItem(STORAGE_KEYS.ARTWORKS)) || initialArtworks,
+      users: JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS)) || initialUsers,
+      currentUser: JSON.parse(localStorage.getItem(STORAGE_KEYS.CURRENT_USER)) || null,
+      likes: JSON.parse(localStorage.getItem(STORAGE_KEYS.LIKES)) || {},
+      comments: JSON.parse(localStorage.getItem(STORAGE_KEYS.COMMENTS)) || {},
+      follows: JSON.parse(localStorage.getItem(STORAGE_KEYS.FOLLOWS)) || [],
+      notifications: JSON.parse(localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS)) || []
+    };
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEYS.ARTWORKS, JSON.stringify(appState.artworks));
+      localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(appState.users));
+      localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(appState.currentUser));
+      localStorage.setItem(STORAGE_KEYS.LIKES, JSON.stringify(appState.likes));
+      localStorage.setItem(STORAGE_KEYS.COMMENTS, JSON.stringify(appState.comments));
+      localStorage.setItem(STORAGE_KEYS.FOLLOWS, JSON.stringify(appState.follows));
+      localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(appState.notifications));
+    }
+
+    /* Toast Helper */
+    function showToast(msg) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.innerText = msg;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    /* Relative Time Formatter */
+    function formatRelativeTime(timestamp) {
+      const now = Date.now();
+      const diff = Math.floor((now - timestamp) / 1000);
+      if (diff < 60) return 'Just now';
+      if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+      if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+      return `${Math.floor(diff / 86400)}d ago`;
+    }
+
+    /* ==========================================================================
+       6. NOTIFICATIONS ENGINE
+       ========================================================================== */
+    function createNotification({ type, recipientUserId, senderUserId, artworkId, artworkTitle, message }) {
+      if (!recipientUserId || recipientUserId === senderUserId) return; // Don't notify self
+
+      const sender = appState.users.find(u => u.id === senderUserId) || { username: 'Someone', avatar: '' };
+
+      const notif = {
+        id: 'n_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+        type,
+        recipientUserId,
+        senderUserId,
+        senderUsername: sender.username,
+        senderAvatar: sender.avatar || 'https://via.placeholder.com/40',
+        artworkId: artworkId || null,
+        artworkTitle: artworkTitle || '',
+        message,
+        timestamp: Date.now(),
+        read: false
+      };
+
+      appState.notifications.unshift(notif);
+      saveState();
+      updateNotificationBadge();
+      renderNotifications();
+    }
+
+    function updateNotificationBadge() {
+      const badge = document.getElementById('notif-badge');
+      if (!appState.currentUser) {
+        badge.classList.add('hidden');
+        return;
+      }
+      const unreadCount = appState.notifications.filter(n => n.recipientUserId === appState.currentUser.id && !n.read).length;
+      if (unreadCount > 0) {
+        badge.innerText = unreadCount > 99 ? '99+' : unreadCount;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+
+    function renderNotifications() {
+      const list = document.getElementById('notif-list');
+      if (!appState.currentUser) {
+        list.innerHTML = `<div class="notif-empty"><div class="notif-empty-icon">🔔</div>Please login to view notifications</div>`;
+        return;
+      }
+
+      const userNotifs = appState.notifications.filter(n => n.recipientUserId === appState.currentUser.id);
+
+      if (userNotifs.length === 0) {
+        list.innerHTML = `<div class="notif-empty"><div class="notif-empty-icon">🔔</div>No notifications yet</div>`;
+        return;
+      }
+
+      list.innerHTML = userNotifs.map(n => `
+        <div class="notif-item ${n.read ? '' : 'unread'}" onclick="handleNotifClick('${n.id}')">
+          <img src="${escapeHTML(n.senderAvatar)}" class="notif-avatar" alt="User">
+          <div class="notif-content">
+            <div class="notif-text"><strong>${escapeHTML(n.senderUsername)}</strong> ${escapeHTML(n.message)}</div>
+            <div class="notif-time">${formatRelativeTime(n.timestamp)}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function handleNotifClick(notifId) {
+      const notif = appState.notifications.find(n => n.id === notifId);
+      if (!notif) return;
+
+      notif.read = true;
+      saveState();
+      updateNotificationBadge();
+      renderNotifications();
+
+      document.getElementById('notif-panel').classList.remove('show');
+
+      if (notif.artworkId) {
+        openArtworkDetailsModal(notif.artworkId);
+      } else if (notif.type === 'FOLLOW') {
+        window.location.hash = `#profile?user=${notif.senderUserId}`;
+      }
+    }
+
+    /* Notification Bell UI Controls */
+    document.getElementById('notif-bell-btn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      const panel = document.getElementById('notif-panel');
+      panel.classList.toggle('show');
+      renderNotifications();
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.notif-bell-wrapper')) {
+        document.getElementById('notif-panel').classList.remove('show');
+      }
+    });
+
+    document.getElementById('notif-read-all').addEventListener('click', () => {
+      if (!appState.currentUser) return;
+      appState.notifications.forEach(n => {
+        if (n.recipientUserId === appState.currentUser.id) n.read = true;
+      });
+      saveState();
+      updateNotificationBadge();
+      renderNotifications();
+    });
+
+    document.getElementById('notif-clear-all').addEventListener('click', () => {
+      if (!appState.currentUser) return;
+      appState.notifications = appState.notifications.filter(n => n.recipientUserId !== appState.currentUser.id);
+      saveState();
+      updateNotificationBadge();
+      renderNotifications();
+    });
+
+    /* ==========================================================================
+       7. INTERACTIVE LAMP IMPLEMENTATION
+       ========================================================================== */
+    (function initLamp() {
+      const container = document.getElementById('lamp-intro-container');
+      const handle = document.getElementById('cord-handle');
+      const path = document.getElementById('cord-path');
+      const glow = document.getElementById('lamp-glow');
+
+      let isDragging = false;
+      let startY = 0;
+      let currentY = 220;
+
+      function updateCord(y) {
+        path.setAttribute('d', `M 60 95 Q ${60 + (y - 220) * 0.2} ${(95 + y) / 2} 60 ${y}`);
+        handle.setAttribute('cy', y);
+      }
+
+      function onStart(e) {
+        isDragging = true;
+        startY = e.touches ? e.touches[0].clientY : e.clientY;
+      }
+
+      function onMove(e) {
+        if (!isDragging) return;
+        const y = e.touches ? e.touches[0].clientY : e.clientY;
+        const delta = Math.max(0, y - startY);
+        currentY = 220 + Math.min(delta, 80);
+        updateCord(currentY);
+
+        if (currentY > 270) {
+          isDragging = false;
+          glow.classList.add('on');
+          setTimeout(() => {
+            container.style.opacity = '0';
+            setTimeout(() => container.style.display = 'none', 800);
+          }, 400);
+        }
+      }
+
+      function onEnd() {
+        if (!isDragging) return;
+        isDragging = false;
+        currentY = 220;
+        updateCord(220);
+      }
+
+      handle.addEventListener('mousedown', onStart);
+      window.addEventListener('mousemove', onMove);
+      window.addEventListener('mouseup', onEnd);
+
+      handle.addEventListener('touchstart', onStart);
+      window.addEventListener('touchmove', onMove);
+      window.addEventListener('touchend', onEnd);
+    })();
+
+    /* ==========================================================================
+       8. ROUTER & RENDER ENGINE
+       ========================================================================== */
+    function navigate() {
+      const hash = window.location.hash || '#home';
+      const viewName = hash.split('?')[0].replace('#', '');
+      
+      document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+
+      const targetView = document.getElementById(`view-${viewName}`) || document.getElementById('view-home');
+      targetView.classList.add('active');
+
+      const activeNav = document.querySelector(`.nav-link[href="#${viewName}"]`);
+      if (activeNav) activeNav.classList.add('active');
+
+      renderHeaderAuth();
+      updateNotificationBadge();
+
+      if (viewName === 'home') renderHome();
+      if (viewName === 'explore') renderExplore();
+      if (viewName === 'artists') renderArtists();
+      if (viewName === 'profile') renderProfile();
+    }
+
+    window.addEventListener('hashchange', navigate);
+    window.addEventListener('load', navigate);
+
+    function renderHeaderAuth() {
+      const slot = document.getElementById('auth-nav-slot');
+      if (appState.currentUser) {
+        slot.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <a href="#profile" style="display: flex; align-items: center; gap: 8px; font-weight: 600;">
+              <img src="${escapeHTML(appState.currentUser.avatar || 'https://via.placeholder.com/32')}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">
+              <span>${escapeHTML(appState.currentUser.username)}</span>
+            </a>
+            <button onclick="logout()" class="btn btn-outline" style="padding: 4px 10px; font-size: 0.8rem;">Logout</button>
+          </div>
+        `;
+      } else {
+        slot.innerHTML = `<a href="#login" class="btn btn-secondary">Login</a>`;
+      }
+    }
+
+    function logout() {
+      appState.currentUser = null;
+      saveState();
+      showToast('Logged out');
+      navigate();
+    }
+
+    /* Core Action Interceptors with Notifications */
+    function toggleLike(artworkId) {
+      if (!appState.currentUser) {
+        showToast('Please log in to like artworks.');
+        return;
+      }
+      if (!appState.likes[artworkId]) appState.likes[artworkId] = [];
+      const likesList = appState.likes[artworkId];
+      const index = likesList.indexOf(appState.currentUser.id);
+
+      const artwork = appState.artworks.find(a => a.id === artworkId);
+
+      if (index === -1) {
+        likesList.push(appState.currentUser.id);
+        if (artwork) {
+          createNotification({
+            type: 'LIKE',
+            recipientUserId: artwork.artistId,
+            senderUserId: appState.currentUser.id,
+            artworkId: artwork.id,
+            artworkTitle: artwork.title,
+            message: `liked your artwork "${artwork.title}"`
+          });
+        }
+      } else {
+        likesList.splice(index, 1);
+      }
+      saveState();
+      navigate();
+      if (document.getElementById('artwork-modal').classList.contains('active')) {
+        openArtworkDetailsModal(artworkId);
+      }
+    }
+
+    function toggleFollow(targetUserId) {
+      if (!appState.currentUser) {
+        showToast('Please log in to follow artists.');
+        return;
+      }
+      const pair = `${appState.currentUser.id}_${targetUserId}`;
+      const index = appState.follows.indexOf(pair);
+
+      if (index === -1) {
+        appState.follows.push(pair);
+        createNotification({
+          type: 'FOLLOW',
+          recipientUserId: targetUserId,
+          senderUserId: appState.currentUser.id,
+          message: `started following you`
+        });
+      } else {
+        appState.follows.splice(index, 1);
+      }
+      saveState();
+      renderArtists();
+    }
+
+    /* Render Views */
+    function renderArtworkCard(art) {
+      const likesCount = (appState.likes[art.id] || []).length;
+      const isLiked = appState.currentUser && (appState.likes[art.id] || []).includes(appState.currentUser.id);
+
+      return `
+        <div class="art-card" onclick="openArtworkDetailsModal('${art.id}')">
+          <div class="art-img-wrapper">
+            <img src="${escapeHTML(art.img)}" alt="${escapeHTML(art.title)}">
+          </div>
+          <div class="art-info">
+            <div class="art-title">${escapeHTML(art.title)}</div>
+            <div class="art-meta">
+              <span class="art-artist">by ${escapeHTML(art.artistName)}</span>
+              <span class="category-badge">${escapeHTML(art.category)}</span>
+            </div>
+            <div class="art-card-actions">
+              <button class="like-btn ${isLiked ? 'liked' : ''}" onclick="event.stopPropagation(); toggleLike('${art.id}')">
+                ♥ ${likesCount}
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderHome() {
+      const grid = document.getElementById('home-featured-grid');
+      grid.innerHTML = appState.artworks.map(renderArtworkCard).join('');
+    }
+
+    function renderExplore() {
+      const grid = document.getElementById('explore-grid');
+      const query = document.getElementById('explore-search').value.toLowerCase();
+      const cat = document.getElementById('explore-category').value;
+
+      const filtered = appState.artworks.filter(a => {
+        const matchesCat = cat === 'All' || a.category === cat;
+        const matchesQuery = a.title.toLowerCase().includes(query) || a.artistName.toLowerCase().includes(query);
+        return matchesCat && matchesQuery;
+      });
+
+      grid.innerHTML = filtered.length > 0 ? filtered.map(renderArtworkCard).join('') : `<p style="grid-column: 1/-1; text-align: center; color: var(--text-sub);">No artworks found.</p>`;
+    }
+
+    document.getElementById('explore-search').addEventListener('input', renderExplore);
+    document.getElementById('explore-category').addEventListener('change', renderExplore);
+
+    function renderArtists() {
+      const grid = document.getElementById('artists-grid');
+      grid.innerHTML = appState.users.map(u => {
+        const isFollowing = appState.currentUser && appState.follows.includes(`${appState.currentUser.id}_${u.id}`);
+        const artCount = appState.artworks.filter(a => a.artistId === u.id).length;
+
+        return `
+          <div class="artist-card">
+            <img src="${escapeHTML(u.avatar || 'https://via.placeholder.com/80')}" class="artist-avatar" alt="Avatar">
+            <div class="artist-name">${escapeHTML(u.username)}</div>
+            <div class="artist-stats">
+              <span>${artCount} Artworks</span>
+            </div>
+            ${appState.currentUser && appState.currentUser.id !== u.id ? `
+              <button class="btn ${isFollowing ? 'btn-outline' : 'btn-primary'}" onclick="toggleFollow('${u.id}')">
+                ${isFollowing ? 'Following' : 'Follow'}
+              </button>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderProfile() {
+      const headerSlot = document.getElementById('profile-header-slot');
+      const grid = document.getElementById('profile-artworks-grid');
+
+      if (!appState.currentUser) {
+        headerSlot.innerHTML = `<p>Please <a href="#login" style="color:var(--accent);">login</a> to view your profile.</p>`;
+        grid.innerHTML = '';
+        return;
+      }
+
+      headerSlot.innerHTML = `
+        <img src="${escapeHTML(appState.currentUser.avatar || 'https://via.placeholder.com/80')}" class="artist-avatar" style="margin-bottom: 1rem;">
+        <h2>${escapeHTML(appState.currentUser.username)}</h2>
+        <p style="color: var(--text-sub);">${escapeHTML(appState.currentUser.email)}</p>
+      `;
+
+      const userArts = appState.artworks.filter(a => a.artistId === appState.currentUser.id);
+      grid.innerHTML = userArts.length > 0 ? userArts.map(renderArtworkCard).join('') : `<p style="grid-column: 1/-1; color: var(--text-sub);">No uploaded artworks yet.</p>`;
+    }
+
+    /* Modal Handler */
+    let currentModalArtId = null;
+
+    function openArtworkDetailsModal(artworkId) {
+      currentModalArtId = artworkId;
+      const art = appState.artworks.find(a => a.id === artworkId);
+      if (!art) return;
+
+      document.getElementById('modal-img').src = art.img;
+      document.getElementById('modal-title').innerText = art.title;
+      document.getElementById('modal-artist').innerText = `by ${art.artistName}`;
+      document.getElementById('modal-category').innerText = art.category;
+
+      const likesCount = (appState.likes[art.id] || []).length;
+      document.getElementById('modal-like-count').innerText = likesCount;
+
+      renderModalComments(art.id);
+      document.getElementById('artwork-modal').classList.add('active');
+    }
+
+    function renderModalComments(artworkId) {
+      const list = document.getElementById('modal-comments-list');
+      const comments = appState.comments[artworkId] || [];
+
+      list.innerHTML = comments.length > 0 ? comments.map(c => `
+        <div class="comment-item">
+          <img src="${escapeHTML(c.avatar || 'https://via.placeholder.com/32')}" class="comment-avatar">
+          <div class="comment-body">
+            <strong>${escapeHTML(c.username)}</strong>
+            <p>${escapeHTML(c.text)}</p>
+          </div>
+        </div>
+      `).join('') : `<p style="color: var(--text-muted); font-size: 0.8rem;">No comments yet.</p>`;
+    }
+
+    document.getElementById('modal-close').addEventListener('click', () => {
+      document.getElementById('artwork-modal').classList.remove('active');
+    });
+
+    document.getElementById('modal-comment-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!appState.currentUser) {
+        showToast('Please log in to comment.');
+        return;
+      }
+      const input = document.getElementById('modal-comment-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      if (!appState.comments[currentModalArtId]) appState.comments[currentModalArtId] = [];
+      appState.comments[currentModalArtId].push({
+        userId: appState.currentUser.id,
+        username: appState.currentUser.username,
+        avatar: appState.currentUser.avatar,
+        text
+      });
+
+      const art = appState.artworks.find(a => a.id === currentModalArtId);
+      if (art) {
+        createNotification({
+          type: 'COMMENT',
+          recipientUserId: art.artistId,
+          senderUserId: appState.currentUser.id,
+          artworkId: art.id,
+          artworkTitle: art.title,
+          message: `commented on your artwork "${art.title}"`
+        });
+      }
+
+      saveState();
+      input.value = '';
+      renderModalComments(currentModalArtId);
+    });
+
+    /* Forms Submit Events */
+    document.getElementById('upload-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!appState.currentUser) {
+        showToast('Please log in to upload artwork.');
+        return;
+      }
+      const file = document.getElementById('upload-file').files[0];
+      const title = document.getElementById('upload-title').value;
+      const category = document.getElementById('upload-category').value;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const newArt = {
+          id: 'art_' + Date.now(),
+          title,
+          category,
+          artistId: appState.currentUser.id,
+          artistName: appState.currentUser.username,
+          img: evt.target.result
+        };
+        appState.artworks.unshift(newArt);
+        saveState();
+        showToast('Artwork published!');
+        window.location.hash = '#explore';
+      };
+      if (file) reader.readAsDataURL(file);
+    });
+
+    document.getElementById('login-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value;
+      const user = appState.users.find(u => u.email === email);
+      if (user) {
+        appState.currentUser = user;
+        saveState();
+        showToast('Logged in successfully!');
+        window.location.hash = '#home';
+      } else {
+        showToast('User not found.');
+      }
+    });
+
+    document.getElementById('register-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const username = document.getElementById('reg-username').value;
+      const email = document.getElementById('reg-email').value;
+
+      const newUser = {
+        id: 'u_' + Date.now(),
+        username,
+        email,
+        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80'
+      };
+      appState.users.push(newUser);
+      appState.currentUser = newUser;
+      saveState();
+      showToast('Account created!');
+      window.location.hash = '#home';
+    });
+  </script>
+</body>
+  </html>
