@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>arts community</title>
+  <title>HAA Studio - Creative Community for Artists</title>
   <style>
     /* ==========================================================================
        1. UNIFIED DESIGN SYSTEM & CSS VARIABLES
@@ -873,8 +873,8 @@
   <!-- 2. GLOBAL HEADER -->
   <header class="app-header">
     <a href="#home" class="brand-logo">
-      <div class="brand-logo-icon">A</div>
-      <span>arts community</span>
+      <div class="brand-logo-icon">H</div>
+      <span>HAA Studio</span>
     </a>
 
     <ul class="nav-menu">
@@ -920,7 +920,7 @@
     <!-- HOME VIEW -->
     <section id="view-home" class="page-view active">
       <div class="hero-section">
-        <h1 class="hero-title">Welcome to arts community</h1>
+        <h1 class="hero-title">Welcome to HAA Studio</h1>
         <p class="hero-subtitle">A creative community for artists to share, discover, and inspire.</p>
         <div class="hero-buttons">
           <a href="#explore" class="btn btn-primary">Explore Artworks</a>
@@ -1028,21 +1028,23 @@
     </section>
 
     <!-- USER PROFILE VIEW -->
-<section id="view-profile" class="page-view">
-  <div id="profile-header-slot" style="text-align: center; padding: 2rem 0; border-bottom: 1px solid var(--glass-border); margin-bottom: 2rem;"></div>
+    <section id="view-profile" class="page-view">
+      <div id="profile-header-slot" style="text-align: center; padding: 2rem 0; border-bottom: 1px solid var(--glass-border); margin-bottom: 2rem;"></div>
 
-  <input type="file" id="avatar-input" accept="image/*" style="display: none;">
+      <!-- PROFILE PICTURE UPLOAD -->
+      <input type="file" id="avatar-input" accept="image/*" style="display: none;">
 
-  <button type="button"
-          class="btn btn-primary"
-          onclick="document.getElementById('avatar-input').click()"
-          style="margin-bottom: 2rem;">
-    Change Profile Picture
-  </button>
+      <div style="text-align: center; margin-bottom: 2rem;">
+        <button type="button"
+                class="btn btn-primary"
+                onclick="document.getElementById('avatar-input').click()">
+          Change Profile Picture
+        </button>
+      </div>
 
-  <div class="section-title">Uploaded Artworks</div>
-  <div class="artworks-grid" id="profile-artworks-grid"></div>
-</section>
+      <div class="section-title">Uploaded Artworks</div>
+      <div class="artworks-grid" id="profile-artworks-grid"></div>
+    </section>
 
   </main>
 
@@ -1079,7 +1081,7 @@
 
   <!-- FOOTER -->
   <footer class="app-footer">
-    <p>&copy; 2026 مجتمع الفنون — أحد مشاريع HAA Studio. All rights reserved.</p>
+    <p>&copy; 2026 HAA Studio. All rights reserved. A unified creative ecosystem.</p>
   </footer>
 
   <!-- ==========================================================================
@@ -1332,34 +1334,34 @@
     /* ==========================================================================
        8. ROUTER & RENDER ENGINE
        ========================================================================== */
-   function navigate() {
-  const hash = window.location.hash || '#home';
-  const viewName = hash.split('?')[0].replace('#', '');
-  
-  document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+    function navigate() {
+      const hash = window.location.hash || '#home';
+      const viewName = hash.split('?')[0].replace('#', '');
+      
+      document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
 
-  const targetView = document.getElementById(`view-${viewName}`) || document.getElementById('view-home');
-  targetView.classList.add('active');
+      const targetView = document.getElementById(`view-${viewName}`) || document.getElementById('view-home');
+      targetView.classList.add('active');
 
-  const activeNav = document.querySelector(`.nav-link[href="#${viewName}"]`);
-  if (activeNav) activeNav.classList.add('active');
+      const activeNav = document.querySelector(`.nav-link[href="#${viewName}"]`);
+      if (activeNav) activeNav.classList.add('active');
 
-  renderHeaderAuth();
-  updateNotificationBadge();
+      renderHeaderAuth();
+      updateNotificationBadge();
 
-  if (viewName === 'home') renderHome();
-  if (viewName === 'explore') renderExplore();
-  if (viewName === 'artists') renderArtists();
-  if (viewName === 'profile') renderProfile();
-}
+      if (viewName === 'home') renderHome();
+      if (viewName === 'explore') renderExplore();
+      if (viewName === 'artists') renderArtists();
+      if (viewName === 'profile') renderProfile();
+    }
 
-window.addEventListener('hashchange', navigate);
+    window.addEventListener('hashchange', navigate);
 
-window.addEventListener('load', function () {
-  navigate();
-  initAvatarUpload();
-});
+    window.addEventListener('load', function () {
+      navigate();
+      initAvatarUpload();
+    });
 
     function renderHeaderAuth() {
       const slot = document.getElementById('auth-nav-slot');
@@ -1514,71 +1516,72 @@ window.addEventListener('load', function () {
     }
 
     function renderProfile() {
-  const headerSlot = document.getElementById('profile-header-slot');
-  const grid = document.getElementById('profile-artworks-grid');
+      const headerSlot = document.getElementById('profile-header-slot');
+      const grid = document.getElementById('profile-artworks-grid');
 
-  if (!appState.currentUser) {
-    headerSlot.innerHTML = `<p>Please <a href="#login" style="color:var(--accent);">login</a> to view your profile.</p>`;
-    grid.innerHTML = '';
-    return;
-  }
-
-  headerSlot.innerHTML = `
-    <img src="${escapeHTML(appState.currentUser.avatar || 'https://via.placeholder.com/80')}" class="artist-avatar" style="margin-bottom: 1rem;">
-    <h2>${escapeHTML(appState.currentUser.username)}</h2>
-    <p style="color: var(--text-sub);">${escapeHTML(appState.currentUser.email)}</p>
-  `;
-
-  const userArts = appState.artworks.filter(a => a.artistId === appState.currentUser.id);
-  grid.innerHTML = userArts.length > 0
-    ? userArts.map(renderArtworkCard).join('')
-    : `<p style="grid-column: 1/-1; color: var(--text-sub);">No uploaded artworks yet.</p>`;
-}
-
-
-// Profile Picture Upload
-function initAvatarUpload() {
-  const avatarInput = document.getElementById('avatar-input');
-
-  if (!avatarInput) return;
-
-  avatarInput.addEventListener('change', function (e) {
-    const file = e.target.files[0];
-
-    if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-      showToast('Please select a valid image.', 'error');
-      return;
-    }
-
-    const reader = new FileReader();
-
-    reader.onload = function (event) {
-      const avatar = event.target.result;
-
-      if (!appState.currentUser) return;
-
-      appState.currentUser.avatar = avatar;
-
-      const user = appState.users.find(
-        u => u.id === appState.currentUser.id
-      );
-
-      if (user) {
-        user.avatar = avatar;
+      if (!appState.currentUser) {
+        headerSlot.innerHTML = `<p>Please <a href="#login" style="color:var(--accent);">login</a> to view your profile.</p>`;
+        grid.innerHTML = '';
+        return;
       }
 
-      saveState();
+      headerSlot.innerHTML = `
+        <img src="${escapeHTML(appState.currentUser.avatar || 'https://via.placeholder.com/80')}" class="artist-avatar" style="margin-bottom: 1rem;">
+        <h2>${escapeHTML(appState.currentUser.username)}</h2>
+        <p style="color: var(--text-sub);">${escapeHTML(appState.currentUser.email)}</p>
+      `;
 
-      renderHeaderAuth();
-      renderProfile();
+      const userArts = appState.artworks.filter(a => a.artistId === appState.currentUser.id);
+      grid.innerHTML = userArts.length > 0 ? userArts.map(renderArtworkCard).join('') : `<p style="grid-column: 1/-1; color: var(--text-sub);">No uploaded artworks yet.</p>`;
+    }
 
-      showToast('Profile picture updated successfully!');
-    };
+    /* Profile Picture Upload */
+    function initAvatarUpload() {
+      const avatarInput = document.getElementById('avatar-input');
 
-    reader.readAsDataURL(file);
-  });
+      if (!avatarInput) return;
+
+      avatarInput.addEventListener('change', function (e) {
+        const file = e.target.files[0];
+
+        if (!file) return;
+
+        if (!file.type.startsWith('image/')) {
+          showToast('Please select a valid image.');
+          avatarInput.value = '';
+          return;
+        }
+
+        const reader = new FileReader();
+
+        reader.onload = function (event) {
+          const avatar = event.target.result;
+
+          if (!appState.currentUser) {
+            showToast('Please log in first.');
+            return;
+          }
+
+          appState.currentUser.avatar = avatar;
+
+          const user = appState.users.find(
+            u => u.id === appState.currentUser.id
+          );
+
+          if (user) {
+            user.avatar = avatar;
+          }
+
+          saveState();
+          renderHeaderAuth();
+          renderProfile();
+
+          showToast('Profile picture updated successfully!');
+          avatarInput.value = '';
+        };
+
+        reader.readAsDataURL(file);
+      });
     }
 
     /* Modal Handler */
