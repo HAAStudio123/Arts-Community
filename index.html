@@ -1120,7 +1120,7 @@
 
     let appState = {
   artworks: JSON.parse(localStorage.getItem(STORAGE_KEYS.ARTWORKS)) || initialArtworks,
-  users: initialUsers,
+  users: JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS)) || initialUsers,
   currentUser: JSON.parse(localStorage.getItem(STORAGE_KEYS.CURRENT_USER)) || null,
   likes: JSON.parse(localStorage.getItem(STORAGE_KEYS.LIKES)) || {},
   comments: JSON.parse(localStorage.getItem(STORAGE_KEYS.COMMENTS)) || {},
