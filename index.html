@@ -1119,14 +1119,14 @@
 ];
 
     let appState = {
-      artworks: JSON.parse(localStorage.getItem(STORAGE_KEYS.ARTWORKS)) || initialArtworks,
-      users: JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS)) || initialUsers,
-      currentUser: JSON.parse(localStorage.getItem(STORAGE_KEYS.CURRENT_USER)) || null,
-      likes: JSON.parse(localStorage.getItem(STORAGE_KEYS.LIKES)) || {},
-      comments: JSON.parse(localStorage.getItem(STORAGE_KEYS.COMMENTS)) || {},
-      follows: JSON.parse(localStorage.getItem(STORAGE_KEYS.FOLLOWS)) || [],
-      notifications: JSON.parse(localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS)) || []
-    };
+  artworks: JSON.parse(localStorage.getItem(STORAGE_KEYS.ARTWORKS)) || initialArtworks,
+  users: initialUsers,
+  currentUser: JSON.parse(localStorage.getItem(STORAGE_KEYS.CURRENT_USER)) || null,
+  likes: JSON.parse(localStorage.getItem(STORAGE_KEYS.LIKES)) || {},
+  comments: JSON.parse(localStorage.getItem(STORAGE_KEYS.COMMENTS)) || {},
+  follows: JSON.parse(localStorage.getItem(STORAGE_KEYS.FOLLOWS)) || [],
+  notifications: JSON.parse(localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS)) || []
+};
 
     function saveState() {
       localStorage.setItem(STORAGE_KEYS.ARTWORKS, JSON.stringify(appState.artworks));
