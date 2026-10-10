@@ -1720,5 +1720,224 @@
       window.location.hash = '#home';
     });
   </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* =========================================================
+   SUPABASE ONLINE BACKEND - ARTS COMMUNITY
+   Public browser key only. Never put a secret/service key here.
+   ========================================================= */
+const SUPABASE_URL = 'https://frvflggcsmywgaabuzvz.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_17CYs59c2Dy_rcvxxQtC_A_0X4l1EnY';
+const { createClient } = window.supabase;
+const supabaseClient = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+function sbUserToProfile(user, profile) {
+  return {
+    id: user?.id || profile?.id,
+    username: profile?.username || user?.user_metadata?.username || user?.email?.split('@')[0] || 'Artist',
+    email: user?.email || '',
+    avatar: profile?.avatar_url || '',
+    bio: profile?.bio || ''
+  };
+}
+
+async function ensureProfile(user) {
+  if (!user) return null;
+  const { data: profile } = await supabaseClient
+    .from('profiles').select('*').eq('id', user.id).maybeSingle();
+  if (profile) return sbUserToProfile(user, profile);
+
+  const username = user.user_metadata?.username || user.email?.split('@')[0] || 'Artist';
+  const { data: created, error } = await supabaseClient
+    .from('profiles')
+    .insert({ id: user.id, username, avatar_url: user.user_metadata?.avatar_url || null })
+    .select().single();
+  if (error) console.warn('Profile creation:', error.message);
+  return sbUserToProfile(user, created || { id: user.id, username });
+}
+
+async function loadOnlineState() {
+  try {
+    const [{ data: authData }, profilesRes, artsRes, likesRes, commentsRes, followsRes, notificationsRes] = await Promise.all([
+      supabaseClient.auth.getUser(),
+      supabaseClient.from('profiles').select('*').order('created_at', { ascending: true }),
+      supabaseClient.from('artworks').select('*').order('created_at', { ascending: false }),
+      supabaseClient.from('likes').select('*'),
+      supabaseClient.from('comments').select('*').order('created_at', { ascending: true }),
+      supabaseClient.from('follows').select('*'),
+      supabaseClient.from('notifications').select('*').order('created_at', { ascending: false })
+    ]);
+
+    const user = authData?.user || null;
+    const profiles = profilesRes.data || [];
+    const profileMap = Object.fromEntries(profiles.map(p => [p.id, p]));
+
+    appState.users = profiles.map(p => ({
+      id: p.id, username: p.username, email: '', avatar: p.avatar_url || '', bio: p.bio || ''
+    }));
+
+    if (user) {
+      const p = await ensureProfile(user);
+      appState.currentUser = p;
+      const existing = appState.users.find(u => u.id === p.id);
+      if (!existing) appState.users.push(p);
+    } else {
+      appState.currentUser = null;
+    }
+
+    appState.artworks = (artsRes.data || []).map(a => ({
+      id: a.id,
+      title: a.title,
+      category: a.category,
+      description: a.description || '',
+      artistId: a.artist_id,
+      artistName: profileMap[a.artist_id]?.username || 'Artist',
+      artistAvatar: profileMap[a.artist_id]?.avatar_url || '',
+      img: a.image_url || '',
+      videoUrl: a.video_url || ''
+    }));
+
+    appState.likes = {};
+    (likesRes.data || []).forEach(l => {
+      if (!appState.likes[l.artwork_id]) appState.likes[l.artwork_id] = [];
+      appState.likes[l.artwork_id].push(l.user_id);
+    });
+
+    appState.comments = {};
+    (commentsRes.data || []).forEach(c => {
+      if (!appState.comments[c.artwork_id]) appState.comments[c.artwork_id] = [];
+      appState.comments[c.artwork_id].push({
+        id: c.id, userId: c.user_id,
+        username: profileMap[c.user_id]?.username || 'Artist',
+        avatar: profileMap[c.user_id]?.avatar_url || '', text: c.content
+      });
+    });
+
+    appState.follows = followsRes.data || [];
+    appState.notifications = notificationsRes.data || [];
+
+    renderHeaderAuth();
+    renderHome();
+    renderExplore();
+    renderArtists();
+    if (typeof renderProfile === 'function') renderProfile();
+    if (typeof renderNotifications === 'function') renderNotifications();
+  } catch (err) {
+    console.error('Supabase load error:', err);
+    showToast('Could not load online data.');
+  }
+}
+
+async function uploadToArtworkBucket(file, folder) {
+  const ext = (file.name.split('.').pop() || 'bin').toLowerCase();
+  const path = `${folder}/${crypto.randomUUID()}.${ext}`;
+  const { error } = await supabaseClient.storage.from('artworks').upload(path, file, {
+    cacheControl: '3600', upsert: false, contentType: file.type
+  });
+  if (error) throw error;
+  const { data } = supabaseClient.storage.from('artworks').getPublicUrl(path);
+  return data.publicUrl;
+}
+
+async function onlineToggleLike(artworkId) {
+  if (!appState.currentUser) return showToast('Please log in first.');
+  const uid = appState.currentUser.id;
+  const already = (appState.likes[artworkId] || []).includes(uid);
+  if (already) {
+    const { error } = await supabaseClient.from('likes').delete().eq('artwork_id', artworkId).eq('user_id', uid);
+    if (error) return showToast(error.message);
+  } else {
+    const { error } = await supabaseClient.from('likes').insert({ artwork_id: artworkId, user_id: uid });
+    if (error) return showToast(error.message);
+  }
+  await loadOnlineState();
+}
+
+async function onlineToggleFollow(targetUserId) {
+  if (!appState.currentUser) return showToast('Please log in first.');
+  const uid = appState.currentUser.id;
+  if (uid === targetUserId) return;
+  const exists = appState.follows.some(f => f.follower_id === uid && f.following_id === targetUserId);
+  const q = supabaseClient.from('follows');
+  const result = exists
+    ? await q.delete().eq('follower_id', uid).eq('following_id', targetUserId)
+    : await q.insert({ follower_id: uid, following_id: targetUserId });
+  if (result.error) return showToast(result.error.message);
+  await loadOnlineState();
+}
+
+/* Override the local-only actions with online versions. */
+toggleLike = onlineToggleLike;
+toggleFollow = onlineToggleFollow;
+
+/* Capture submit events before the old localStorage handlers. */
+document.addEventListener('submit', async function(e) {
+  if (e.target.id !== 'login-form' && e.target.id !== 'register-form' && e.target.id !== 'upload-form') return;
+  e.preventDefault();
+  e.stopImmediatePropagation();
+
+  try {
+    if (e.target.id === 'login-form') {
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-pass').value;
+      const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      await loadOnlineState();
+      showToast('Logged in successfully!');
+      window.location.hash = '#home';
+      return;
+    }
+
+    if (e.target.id === 'register-form') {
+      const username = document.getElementById('reg-username').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const password = document.getElementById('reg-pass').value;
+      if (password.length < 6) throw new Error('Password must be at least 6 characters.');
+      const { data, error } = await supabaseClient.auth.signUp({
+        email, password,
+        options: { data: { username } }
+      });
+      if (error) throw error;
+      if (data.user && data.session) await ensureProfile(data.user);
+      showToast(data.session ? 'Account created!' : 'Account created. Check your email to confirm it.');
+      if (data.session) { await loadOnlineState(); window.location.hash = '#home'; }
+      else window.location.hash = '#login';
+      return;
+    }
+
+    if (e.target.id === 'upload-form') {
+      if (!appState.currentUser) throw new Error('Please log in to upload artwork.');
+      const file = document.getElementById('upload-file').files[0];
+      const title = document.getElementById('upload-title').value.trim();
+      const category = document.getElementById('upload-category').value;
+      if (!file) throw new Error('Please select an artwork image.');
+
+      const imageUrl = await uploadToArtworkBucket(file, appState.currentUser.id);
+      const { error } = await supabaseClient.from('artworks').insert({
+        artist_id: appState.currentUser.id,
+        title, category, description: '', image_url: imageUrl, video_url: null
+      });
+      if (error) throw error;
+      e.target.reset();
+      await loadOnlineState();
+      showToast('Artwork published online!');
+      window.location.hash = '#explore';
+    }
+  } catch (err) {
+    console.error(err);
+    showToast(err.message || 'Something went wrong.');
+  }
+}, true);
+
+/* Keep session synchronized across refreshes/tabs. */
+supabaseClient.auth.onAuthStateChange((_event, _session) => {
+  setTimeout(loadOnlineState, 0);
+});
+
+window.addEventListener('load', function() {
+  setTimeout(loadOnlineState, 100);
+});
+</script>
+
 </body>
   </html>
